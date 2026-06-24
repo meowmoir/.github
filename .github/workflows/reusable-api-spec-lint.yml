@@ -1,0 +1,37 @@
+name: API spec lint (reusable)
+
+# Reusable design-time API gate: generate the OpenAPI spec from drf-spectacular and lint it with
+# Spectral against the org-shared ruleset (spectral/meowmoir.yaml in this .github repo). Fails on
+# ERRORS only; AIP-leaning rules are warnings that ratchet to error as the API migrates (D9/D10).
+# Call from a Django/DRF repo with:
+#   jobs:
+#     api-spec-lint:
+#       uses: meowmoir/.github/.github/workflows/reusable-api-spec-lint.yml@main
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  spectral:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout caller repo
+        uses: actions/checkout@v5
+      - name: Checkout shared harness ruleset (meowmoir/.github)
+        uses: actions/checkout@v5
+        with:
+          repository: meowmoir/.github
+          path: .harness
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Add uv to PATH
+        run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Sync deps
+        run: uv sync
+      - name: Generate OpenAPI spec
+        run: uv run python manage.py spectacular --file openapi.yaml
+      - name: Spectral lint (fail on error)
+        run: npx -y @stoplight/spectral-cli@latest lint openapi.yaml --ruleset .harness/spectral/meowmoir.yaml --fail-severity error

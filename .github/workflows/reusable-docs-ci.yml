@@ -1,0 +1,31 @@
+name: Docs CI (reusable)
+
+# Reusable docs gate for the MkDocs site: a strict build (catches broken nav/links) plus the
+# internal-anchor check (catches broken #fragment links, incl. CJK-slug breakage). Call with:
+#   jobs:
+#     docs-ci:
+#       uses: meowmoir/.github/.github/workflows/reusable-docs-ci.yml@main
+# Note: Mermaid syntax is validated locally (mermaid-cli); not gated here to avoid a headless-
+# Chromium dependency in CI.
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Add uv to PATH
+        run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Sync deps
+        run: uv sync
+      - name: Strict build
+        run: uv run mkdocs build --strict
+      - name: Internal anchor check
+        run: python3 scripts/check_anchors.py

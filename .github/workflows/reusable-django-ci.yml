@@ -1,0 +1,34 @@
+name: Django CI (reusable)
+
+# Reusable backend gate: lint + system check + tests. Call from a Django repo with:
+#   jobs:
+#     django-ci:
+#       uses: meowmoir/.github/.github/workflows/reusable-django-ci.yml@main
+# uv brings its own Python (requires-python pinned in the repo's pyproject); dev settings use
+# sqlite + eager Celery, so no Postgres/Redis is needed for the gate.
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Add uv to PATH
+        run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Sync deps
+        run: uv sync
+      - name: Ruff lint
+        run: uv run ruff check .
+      - name: Ruff format check
+        run: uv run ruff format --check .
+      - name: Django system check
+        run: uv run python manage.py check
+      - name: Tests
+        run: uv run python manage.py test
