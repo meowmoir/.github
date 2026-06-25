@@ -1,0 +1,44 @@
+# Meowmoir — workspace-level dev orchestration.
+#
+# Canonical copy. To use it, put a one-line `justfile` at your Meowmoir
+# workspace root — the directory holding the meowmoir-* repos and the `.github`
+# checkout — containing:
+#
+#     import '.github/workspace/justfile'
+#
+# Then run `just` from that root. See README.md next to this file. Each repo
+# also has its own justfile; this forwards to them and adds cross-repo helpers.
+
+# List recipes
+_default:
+    @just --list
+
+# Forward a recipe to the backend repo, e.g. `just backend migrate`
+backend *args:
+    cd meowmoir-backend && just {{args}}
+
+# Forward a recipe to the iOS repo, e.g. `just ios run`
+ios *args:
+    cd meowmoir-ios && just {{args}}
+
+# Forward a recipe to the docs repo, e.g. `just docs serve`
+docs *args:
+    cd meowmoir-docs && just {{args}}
+
+# Run all automated test suites (backend + iOS)
+test:
+    cd meowmoir-backend && just test
+    cd meowmoir-ios && just test
+
+# Core-loop dev: start the backend in the background, then launch the iOS app
+dev:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    (cd meowmoir-backend && nohup just serve > /tmp/meowmoir-backend.log 2>&1 &)
+    sleep 3
+    cd meowmoir-ios && just run
+    echo "Backend log: /tmp/meowmoir-backend.log"
+
+# Stop the background dev backend started by `just dev`
+stop:
+    pkill -f "manage.py runserver" || true
