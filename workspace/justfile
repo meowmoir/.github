@@ -1,13 +1,14 @@
 # Meowmoir — workspace-level dev orchestration.
 #
-# Canonical copy. To use it, put a one-line `justfile` at your Meowmoir
+# Canonical copy. To use it, run the bootstrap script from your Meowmoir
 # workspace root — the directory holding the meowmoir-* repos and the `.github`
-# checkout — containing:
+# checkout:
 #
-#     import '.github/workspace/justfile'
+#     ./.github/workspace/bootstrap.sh
 #
-# Then run `just` from that root. See README.md next to this file. Each repo
-# also has its own justfile; this forwards to them and adds cross-repo helpers.
+# That writes a one-line shim `justfile` at the root; then run `just` from there.
+# See README.md next to this file. Each repo also has its own justfile; this
+# forwards to them and adds cross-repo helpers.
 
 # List recipes
 _default:
@@ -24,6 +25,10 @@ ios *args:
 # Forward a recipe to the docs repo, e.g. `just docs serve`
 docs *args:
     cd meowmoir-docs && just {{args}}
+
+# Forward a recipe to the desktop-pet repo, e.g. `just desktop run`
+desktop *args:
+    cd meowmoir-desktop && just {{args}}
 
 # Run all automated test suites (backend + iOS)
 test:

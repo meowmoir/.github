@@ -10,15 +10,24 @@ truth — the per-repo justfiles stay each repo's own concern.
 
 ## Setup
 
-Put a one-line `justfile` at the workspace root that imports this one:
+After cloning the `meowmoir-*` repos and this `.github` repo into a shared
+parent directory, run the bootstrap script from the workspace root:
 
 ```sh
 cd <workspace-root>   # the dir holding meowmoir-backend, meowmoir-ios, .github, …
+./.github/workspace/bootstrap.sh
+```
+
+It writes the small shim `justfile` at the workspace root that imports this one.
+It's idempotent (re-running is a no-op) and backs up any pre-existing root
+`justfile` before overwriting. Or do the same by hand:
+
+```sh
 printf "import '.github/workspace/justfile'\n" > justfile
 ```
 
 The root shim is local-only (the workspace root isn't a git repo); the recipes
-it imports are tracked here.
+it imports — and the bootstrap script — are tracked here.
 
 ## Recipes
 
