@@ -26,6 +26,10 @@ ios *args:
 docs *args:
     cd meowmoir-docs && just {{args}}
 
+# Forward a recipe to the desktop-pet repo, e.g. `just desktop run`
+desktop *args:
+    cd meowmoir-desktop && just {{args}}
+
 # Run all automated test suites (backend + iOS)
 test:
     cd meowmoir-backend && just test
