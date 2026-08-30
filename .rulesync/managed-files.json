@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 2,
+  "files": [
+    {
+      "path": ".github/workflows/misoto-harness.yml",
+      "sha256": "a90611b2c2eda1fc357a31fb91fc8a65739a76d43ba0282d10cfa6f8078d4a12"
+    }
+  ]
+}
